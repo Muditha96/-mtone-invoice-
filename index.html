@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>MTone Invoice Studio v31 logo-fixed-blue-purple</title>
+<title>MTone Invoice Studio v32 payment-section-fixed</title>
 <meta name="theme-color" content="#061a4a"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -157,6 +157,45 @@ textarea{min-height:78px;resize:vertical}
 .notice{margin-top:10px;padding:7px 10px;font-size:8.8px;line-height:1.25;background:#fbfdff}
 .verify{bottom:10px;font-size:8.2px}
 .paid-stamp{border-color:#dc2626;color:#dc2626;background:rgba(255,255,255,.18)}
+
+
+/* v32 payment section fix */
+.payment-box{
+  min-height:0;
+  padding:8px 10px;
+}
+.payment-box .box-body{
+  columns:auto !important;
+  column-gap:0 !important;
+  white-space:pre-line;
+}
+.payment-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:2px;
+}
+.bank-card{
+  background:#f8fbff;
+  border:1px solid #dbeafe;
+  border-radius:10px;
+  padding:7px 8px;
+  min-height:64px;
+}
+.bank-name{
+  font-size:9.2px;
+  font-weight:900;
+  color:#194ab6;
+  margin-bottom:3px;
+  letter-spacing:.2px;
+}
+.bank-lines{
+  font-size:8.4px;
+  line-height:1.18;
+  color:#173860;
+  white-space:pre-line;
+}
+@media(max-width:900px){.payment-grid{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -476,9 +515,14 @@ function splitItems(items, firstRows=10, nextRows=20){
 }
 
 function formatPaymentHTML(t){
-  let blocks=String(t||'-').split(/\n\s*\n/).filter(Boolean);
-  if(blocks.length<=1) return `<div class="box-body">${esc(t||'-')}</div>`;
-  return `<div class="payment-cols">`+blocks.map(b=>`<div class="box-body">${esc(b)}</div>`).join('')+`</div>`;
+  let blocks=String(t||'-').split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+  if(!blocks.length) return `<div class="box-body">-</div>`;
+  if(blocks.length===1) return `<div class="box-body">${esc(blocks[0])}</div>`;
+  return `<div class="payment-grid">`+blocks.slice(0,2).map(b=>{
+    let lines=b.split(/\n/).map(x=>x.trim()).filter(Boolean);
+    let title=lines.shift()||'Payment Account';
+    return `<div class="bank-card"><div class="bank-name">${esc(title)}</div><div class="bank-lines">${esc(lines.join('\n'))}</div></div>`;
+  }).join('')+`</div>`;
 }
 function cleanItemText(s){
   return String(s||'').replace(/\(\s*/g,' (').replace(/\s+\)/g,')').replace(/\s{2,}/g,' ').trim();
